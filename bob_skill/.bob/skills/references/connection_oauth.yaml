@@ -1,0 +1,44 @@
+# Connection config — OAuth2 authorization-code flow.
+#
+# Use this when the upstream API requires a per-user OAuth dance (Google,
+# Microsoft, Workday, Box, GitHub OAuth apps, etc.). For simple API tokens or
+# basic auth, prefer connection_basic_auth.yaml — OAuth has more moving parts.
+#
+# Important: the OAuth redirect URI you register with the upstream provider must
+# match the Orchestrate instance you're deploying to. The wxo-domains Workday
+# guide documents the canonical URIs by environment — see remote_setup.md.
+
+spec_version: v1
+kind: connection
+app_id: my_oauth_app
+
+environments:
+  draft:
+    kind: oauth_auth_code_flow
+    type: member                 # OAuth is almost always per-user (member).
+    sso: false
+    server_url: "{MY_OAUTH_APP[base_url]}"
+    credentials:
+      token_url: "{MY_OAUTH_APP[token_url]}"
+      authorization_url: "{MY_OAUTH_APP[auth_url]}"
+      client_id: "{MY_OAUTH_APP[client_id]}"
+      client_secret: "{MY_OAUTH_APP[client_secret]}"
+      # scope: "{MY_OAUTH_APP[scope]}"   # optional, space-separated string
+
+  live:
+    kind: oauth_auth_code_flow
+    type: member
+    sso: false
+    server_url: "{MY_OAUTH_APP[base_url]}"
+    credentials:
+      token_url: "{MY_OAUTH_APP[token_url]}"
+      authorization_url: "{MY_OAUTH_APP[auth_url]}"
+      client_id: "{MY_OAUTH_APP[client_id]}"
+      client_secret: "{MY_OAUTH_APP[client_secret]}"
+      # scope: "{MY_OAUTH_APP[scope]}"
+
+# Other OAuth flows the ADK supports (set `kind:` to one of these):
+#   - oauth_auth_password_flow            (resource-owner password — discouraged)
+#   - oauth_auth_client_credentials_flow  (machine-to-machine, no user)
+#   - oauth_auth_on_behalf_of_flow        (OBO / token exchange)
+# Set the matching credentials fields per the ADK's `set-credentials` reference.

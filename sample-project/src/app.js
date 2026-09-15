@@ -1,0 +1,13 @@
+const express = require("express");
+const notesRouter = require("./routes/notes");
+
+const app = express();
+app.use(express.json());
+app.use("/notes", notesRouter);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`bobcraft-notes listening on port ${PORT}`);
+});
+
+module.exports = app;

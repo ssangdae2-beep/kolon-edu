@@ -1,0 +1,39 @@
+{
+  "_comment_top": "Journey Success test case for an Orchestrate agent. Upload via POST /v1/orchestrate/agent/<agent_id>/test_case/v2 as multipart/form-data with field name 'file'. Once uploaded, judges can RUN the test from the agent's 'Tests' tab in the Orchestrate UI. Journey Success grades whether the agent invoked the listed tools in the listed order with arg values that satisfy the arg_matching rules.",
+
+  "agent": "my_collaborator_agent",
+  "story": "One sentence in second person describing what the user wants. Becomes the test case's `conversation_context`.",
+  "starting_sentence": "The exact prompt the user types to kick off the conversation. Becomes the test case `name` in the UI listing.",
+
+  "_comment_response_summary": "OPTIONAL — decide at upload time based on the agent. Include `response_summary` only when the FINAL OUTPUT IS DETERMINISTIC in shape AND content. Good fit: QA agents that look up a specific fact, ticket-creation agents that echo back a structured confirmation, anything where the answer is essentially the same every time. Bad fit: agents with random output (random facts, jokes), agents that summarize live/changing data, anything where the LLM legitimately rewords the answer. There is no reliable way to skip this check at run time, so the decision lives here at upload time.",
+  "_example_response_summary_FOR_QA_AGENT": "The agent confirms the requested ticket number, lists the assigned engineer, and gives the next required action.",
+
+  "goals": {
+    "_comment": "DAG of goals: each key is a goal `name` from goal_details; each value is the list of goals that should follow it. Use this to encode required tool-call ordering. A leaf goal (no successors) is implied if it's not a key here.",
+    "my_tool_function_name-1": ["summarize"]
+  },
+
+  "goal_details": [
+    {
+      "_comment": "Tool-call goal. The agent must invoke `tool_name` with args satisfying `arg_matching`. Goal `name` is an arbitrary identifier — by convention `<tool_name>-<n>` so you can reference the same tool called multiple times.",
+      "name": "my_tool_function_name-1",
+      "type": "tool_call",
+      "tool_name": "my_tool_function_name",
+      "args": {"query": "hello", "limit": 10},
+      "arg_matching": {
+        "_comment": "Per-arg matching mode: `strict` (value must equal exactly), `optional` (skip if missing), `fuzzy` (string fuzzy match). Omit an arg here to exempt it from grading.",
+        "query": "strict",
+        "limit": "optional"
+      }
+    },
+    {
+      "_comment_text_goal": "Text goal — what the agent should say to the user. Three optional knobs to grade against. Default: just `keywords` (cheap, reliable). `summary` and `response` follow the same QA-agent-only logic as `response_summary` above.",
+      "name": "summarize",
+      "type": "text",
+      "_comment_keywords": "RECOMMENDED. Substrings that MUST appear in the agent's response. Use for must-mention values (currency code, ticket ID, city name). Keep the list short — over-specifying causes false fails when the LLM paraphrases.",
+      "keywords": ["important", "phrase", "from-tool-output"],
+      "_comment_summary": "OPTIONAL. LLM-judged semantic check, per-goal. Same QA-agent rule as `response_summary` — include only when output shape is deterministic.",
+      "_comment_response": "OPTIONAL. Fuzzy-matched example response. Mostly redundant with keywords + summary."
+    }
+  ]
+}

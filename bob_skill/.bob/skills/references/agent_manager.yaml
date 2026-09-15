@@ -1,0 +1,34 @@
+# Manager agent template — pure router. NEVER owns tools directly.
+#
+# Use a manager when your domain spans multiple distinct task types (>~5 tools).
+# If your agent only needs a few tools for one task, use agent_collaborator.yaml
+# instead — managers add an extra LLM hop that's not worth it for simple cases.
+
+spec_version: v1
+kind: native
+name: my_manager_agent           # MUST match the filename stem (typically `*_manager.yaml`).
+description: A manager agent in charge of routing user requests to the most relevant collaborator agent.
+
+instructions: >
+  **How To Route To Other Agents**
+
+  You are a manager agent. You have collaborator agents working under you.
+
+  - The `child_agent_a` handles <X tasks — describe specifically>.
+
+  - The `child_agent_b` handles <Y tasks — describe specifically>.
+
+  Your job is to delegate every user request to exactly one of these agents.
+  If the request spans both, delegate in sequence: do `child_agent_a` first, then
+  pass its result to `child_agent_b`.
+
+  Do NOT attempt to answer the user directly. Do NOT call any tool yourself.
+
+llm: watsonx/openai/gpt-oss-120b
+style: default
+
+collaborators:
+  - child_agent_a
+  - child_agent_b
+
+tools: []                        # MANAGER AGENTS NEVER HAVE TOOLS. (pitfall #2)

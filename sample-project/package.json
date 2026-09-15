@@ -1,0 +1,13 @@
+{
+  "name": "bobcraft-notes",
+  "version": "0.1.0",
+  "description": "IBM Bob 실습용 샘플 노트 API",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

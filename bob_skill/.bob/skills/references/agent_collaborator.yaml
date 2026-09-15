@@ -1,0 +1,58 @@
+# Collaborator agent template — the worker that actually calls tools.
+#
+# Save as `agents/<your_agent_name>.yaml`. The `name:` field, the filename stem,
+# and the function names you list under `tools:` should all match the same
+# snake_case identifiers in your code. That convention kills the #1 deploy bug.
+
+spec_version: v1
+kind: native
+name: my_collaborator_agent      # MUST match the filename stem.
+description: >
+  One-sentence description of what this agent does. The manager agent's router
+  reads this when deciding whether to delegate to you — be specific about the
+  domain and the user task you solve.
+
+instructions: |
+  ## Role
+  You handle <one specific task> by using the available tools. Rely on tool
+  outputs and explicit user input — never assume values or business logic.
+
+  ## Tool Usage Guidelines
+  - Use a tool only when you have every required parameter.
+  - Never guess, infer, or invent missing values. Ask the user instead.
+  - When a tool returns multiple records, present them in a simple table.
+  - Do not display system-internal IDs unless the user asks for them.
+
+  ## How To Use Tools
+  - Use `my_tool_function_name` when the user wants <describe the trigger
+    situation>. Extract `query` from the user's message; default `limit` to 10
+    unless the user specifies otherwise.
+
+  ## Handling ToolResponse
+  Every tool returns a ToolResponse with `is_success`, `tool_output`, and
+  `error_details`.
+  - If `is_success` is True, use `tool_output` for the next step.
+  - If `is_success` is False, read `error_details.reason` and
+    `error_details.recommendation`, retry only if the error is fixable, and
+    otherwise stop and explain the issue to the user in plain language.
+
+  ## Scope Control
+  - Respond only to requests directly related to <your domain>.
+  - If the user asks anything outside this domain, transfer back to supervisor.
+
+llm: watsonx/openai/gpt-oss-120b  # Default for this skill. See yaml_schema.md for alternatives.
+style: default                  # `default` for almost everything; `react` only if you know why.
+collaborators: []               # Collaborators are children. Worker agents usually have none.
+
+tools:
+  # EXACT @tool function names, snake_case. Renaming the Python function without
+  # updating this list silently breaks the tool binding (pitfall #1).
+  - my_tool_function_name
+
+# Optional — enable when your tool needs the logged-in user's email/name or the
+# channel the chat came from. Leave commented out for the simplest agents.
+# context_access_enabled: true
+# context_variables:
+#   - wxo_email_id
+#   - wxo_user_name
+#   - channel

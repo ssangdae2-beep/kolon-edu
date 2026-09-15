@@ -1,0 +1,56 @@
+# Connection config — basic_auth and key_value examples.
+#
+# Save as `connections/<your_app>.yaml`. The `app_id` here is what you pass to
+# `orchestrate connections add --app-id <id>` AND what you reference in your
+# Python tool's ExpectedCredentials(app_id="...").
+#
+# Two environments per connection on every hosted Orchestrate instance:
+# `draft` (dev, used while you iterate) and `live` (production, what end users hit).
+# On the hosted UI, you fill in Draft creds, test in chat, then click
+# "Paste Draft Credentials" in the Live tab to promote — see remote_setup.md.
+
+# ---------------------------------------------------------------------------
+# Variant A: key_value (the simplest — single token or arbitrary key/value pairs)
+# ---------------------------------------------------------------------------
+spec_version: v1
+kind: connection
+app_id: my_app
+
+environments:
+  draft:
+    kind: key_value              # ConnectionKind: key_value | basic | bearer | api_key | oauth_auth_code_flow
+    type: team                   # team = shared across all tenant users; member = per-user
+    server_url: https://api.example.com
+    # The values referenced by {MY_APP[...]} are resolved at import time from your
+    # local credentials file (in this starter, `.env` via python-dotenv).
+    credentials:
+      token: "{MY_APP[token]}"
+
+  live:
+    kind: key_value
+    type: team
+    server_url: https://api.example.com
+    credentials:
+      token: "{MY_APP[token]}"
+
+# ---------------------------------------------------------------------------
+# Variant B: basic_auth (username + password)
+# ---------------------------------------------------------------------------
+# spec_version: v1
+# kind: connection
+# app_id: my_app
+# environments:
+#   draft:
+#     kind: basic                # username + password
+#     type: member
+#     server_url: https://api.example.com
+#     credentials:
+#       username: "{MY_APP[username]}"
+#       password: "{MY_APP[password]}"
+#   live:
+#     kind: basic
+#     type: member
+#     server_url: https://api.example.com
+#     credentials:
+#       username: "{MY_APP[username]}"
+#       password: "{MY_APP[password]}"
